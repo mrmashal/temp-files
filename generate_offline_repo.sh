@@ -45,6 +45,12 @@ log "Segment: $SEGMENT"
 log "Working directory: $SCRIPT_DIR"
 log "Repository base: $REPO_BASE"
 
+# Verify we're in the Telegram project directory
+if [ ! -f "gradlew" ]; then
+    log_error "gradlew not found. Please run this script from the Telegram project root."
+    exit 1
+fi
+
 # Create base repo structure
 mkdir -p "$REPO_BASE"
 
@@ -76,6 +82,13 @@ EOF
     BUILDSRC_TEMP="${SCRIPT_DIR}/.buildsrc-temp"
     rm -rf "$BUILDSRC_TEMP"
     mkdir -p "$BUILDSRC_TEMP/buildSrc/src/main/kotlin/com/example"
+    
+    # Copy gradle wrapper from main project
+    log "Copying Gradle wrapper..."
+    cp -r "$SCRIPT_DIR/gradle" "$BUILDSRC_TEMP/"
+    cp "$SCRIPT_DIR/gradlew" "$BUILDSRC_TEMP/"
+    cp "$SCRIPT_DIR/gradlew.bat" "$BUILDSRC_TEMP/" 2>/dev/null || true
+    chmod +x "$BUILDSRC_TEMP/gradlew"
     
     # Create buildSrc/build.gradle.kts
     cat > "$BUILDSRC_TEMP/buildSrc/build.gradle.kts" <<'EOF'
@@ -296,18 +309,25 @@ EOF
     rm -rf "$PLUGIN_TEMP"
     mkdir -p "$PLUGIN_TEMP"
     
+    # Copy gradle wrapper from main project
+    log "Copying Gradle wrapper..."
+    cp -r "$SCRIPT_DIR/gradle" "$PLUGIN_TEMP/"
+    cp "$SCRIPT_DIR/gradlew" "$PLUGIN_TEMP/"
+    cp "$SCRIPT_DIR/gradlew.bat" "$PLUGIN_TEMP/" 2>/dev/null || true
+    chmod +x "$PLUGIN_TEMP/gradlew"
+    
     # Detect AGP and Kotlin versions from the actual project
     AGP_VERSION="8.1.4"
     KOTLIN_VERSION="1.9.22"
     
-    if [ -f "build.gradle.kts" ]; then
-        AGP_DETECTED=$(grep -oP 'com\.android\.tools\.build:gradle:\K[0-9.]+' build.gradle.kts | head -1 || echo "")
-        KOTLIN_DETECTED=$(grep -oP 'org\.jetbrains\.kotlin:kotlin-gradle-plugin:\K[0-9.]+' build.gradle.kts | head -1 || echo "")
+    if [ -f "$SCRIPT_DIR/build.gradle.kts" ]; then
+        AGP_DETECTED=$(grep -oP 'com\.android\.tools\.build:gradle:\K[0-9.]+' "$SCRIPT_DIR/build.gradle.kts" | head -1 || echo "")
+        KOTLIN_DETECTED=$(grep -oP 'org\.jetbrains\.kotlin:kotlin-gradle-plugin:\K[0-9.]+' "$SCRIPT_DIR/build.gradle.kts" | head -1 || echo "")
         [ -n "$AGP_DETECTED" ] && AGP_VERSION="$AGP_DETECTED"
         [ -n "$KOTLIN_DETECTED" ] && KOTLIN_VERSION="$KOTLIN_DETECTED"
-    elif [ -f "build.gradle" ]; then
-        AGP_DETECTED=$(grep -oP 'com\.android\.tools\.build:gradle:\K[0-9.]+' build.gradle | head -1 || echo "")
-        KOTLIN_DETECTED=$(grep -oP 'org\.jetbrains\.kotlin:kotlin-gradle-plugin:\K[0-9.]+' build.gradle | head -1 || echo "")
+    elif [ -f "$SCRIPT_DIR/build.gradle" ]; then
+        AGP_DETECTED=$(grep -oP 'com\.android\.tools\.build:gradle:\K[0-9.]+' "$SCRIPT_DIR/build.gradle" | head -1 || echo "")
+        KOTLIN_DETECTED=$(grep -oP 'org\.jetbrains\.kotlin:kotlin-gradle-plugin:\K[0-9.]+' "$SCRIPT_DIR/build.gradle" | head -1 || echo "")
         [ -n "$AGP_DETECTED" ] && AGP_VERSION="$AGP_DETECTED"
         [ -n "$KOTLIN_DETECTED" ] && KOTLIN_VERSION="$KOTLIN_DETECTED"
     fi
