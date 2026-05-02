@@ -1,0 +1,509 @@
+[0;34m[2026-05-02 15:13:34][0m Starting Telegram Android Offline Repository Generator
+[0;34m[2026-05-02 15:13:34][0m Segment: buildsrc
+[0;34m[2026-05-02 15:13:34][0m Working directory: /root/temp/Telegram
+[0;34m[2026-05-02 15:13:34][0m Repository base: /root/temp/Telegram/offline-repo
+[0;34m[2026-05-02 15:13:34][0m ==========================================
+[0;34m[2026-05-02 15:13:34][0m SEGMENT 1: BuildSrc Dependencies
+[0;34m[2026-05-02 15:13:34][0m ==========================================
+[0;34m[2026-05-02 15:13:34][0m Creating isolated buildSrc project for dependency resolution...
+[0;34m[2026-05-02 15:13:34][0m Copying Gradle wrapper...
+[0;34m[2026-05-02 15:13:34][0m Resolving buildSrc dependencies without building...
+Downloading https://services.gradle.org/distributions/gradle-8.7-bin.zip
+............10%.............20%.............30%.............40%............50%.............60%.............70%.............80%.............90%............100%
+
+Welcome to Gradle 8.7!
+
+Here are the highlights of this release:
+ - Compiling and testing with Java 22
+ - Cacheable Groovy script compilation
+ - New methods in lazy collection properties
+
+For more details see https://docs.gradle.org/8.7/release-notes.html
+
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.7/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors
+> Task :buildSrc:compileKotlin
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors
+> Task :buildSrc:processResources
+> Task :buildSrc:classes
+> Task :buildSrc:jar
+
+> Task :buildSrc:dependencies
+
+------------------------------------------------------------
+Project ':buildSrc'
+------------------------------------------------------------
+
+annotationProcessor - Annotation processors and their dependencies for source set 'main'.
+No dependencies
+
+api - API dependencies for null/main (n)
++--- unspecified (n)
+\--- unspecified (n)
+
+apiDependenciesMetadata
+No dependencies
+
+apiElements - API elements for the 'main' feature. (n)
+No dependencies
+
+apiElements-published (n)
+No dependencies
+
+buildScriptClasspath
++--- project :buildSrc (*)
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.20
+|    |    |    +--- org.jetbrains:annotations:13.0
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
+|    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.20
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.20
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+          \--- org.jetbrains.kotlin:kotlin-reflect:1.9.20 (*)
+
+compileClasspath - Compile classpath for null/main.
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    +--- org.jetbrains:annotations:13.0
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22 (c)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
++--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.22 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.22
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 -> 1.9.22 (*)
+
+compileOnly - Compile only dependencies for null/main. (n)
++--- unspecified (n)
+\--- unspecified (n)
+
+compileOnlyApi - Compile-only API dependencies for the 'main' feature. (n)
+No dependencies
+
+compileOnlyDependenciesMetadata
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+\--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+
+default - Configuration for default artifacts. (n)
+No dependencies
+
+embeddedKotlin
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    \--- org.jetbrains:annotations:13.0
+\--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+
+implementation - Implementation only dependencies for null/main. (n)
++--- com.squareup.moshi:moshi:1.15.0 (n)
++--- com.squareup.moshi:moshi-kotlin:1.15.0 (n)
++--- com.github.javaparser:javaparser-core:3.25.4 (n)
+\--- com.squareup:kotlinpoet:1.15.0 (n)
+
+implementationDependenciesMetadata
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    \--- com.squareup.okio:okio-metadata:2.10.0
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.20
+|    |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20
+|    |                   \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+
+intransitiveDependenciesMetadata
+No dependencies
+
+kotlinBuildToolsApiClasspath
+\--- org.jetbrains.kotlin:kotlin-build-tools-impl:1.9.22
+     +--- org.jetbrains.kotlin:kotlin-build-tools-api:1.9.22
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+     |    \--- org.jetbrains:annotations:13.0
+     +--- org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.22
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-script-runtime:1.9.22
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.6.10
+     |    +--- org.jetbrains.kotlin:kotlin-daemon-embeddable:1.9.22
+     |    \--- org.jetbrains.intellij.deps:trove4j:1.0.20200330
+     \--- org.jetbrains.kotlin:kotlin-compiler-runner:1.9.22
+          +--- org.jetbrains.kotlin:kotlin-build-common:1.9.22
+          +--- org.jetbrains.kotlin:kotlin-daemon-client:1.9.22
+          +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.5.0
+          \--- org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.22 (*)
+
+kotlinCompilerClasspath
+\--- org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.22
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+     |    \--- org.jetbrains:annotations:13.0
+     +--- org.jetbrains.kotlin:kotlin-script-runtime:1.9.22
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.10
+     +--- org.jetbrains.kotlin:kotlin-daemon-embeddable:1.9.22
+     \--- org.jetbrains.intellij.deps:trove4j:1.0.20200330
+
+kotlinCompilerPluginClasspath
+No dependencies
+
+kotlinCompilerPluginClasspathMain - Kotlin compiler plugins for compilation
++--- org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:1.9.22
+|    +--- org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:1.9.22
+|    |    +--- org.jetbrains.kotlin:kotlin-scripting-common:1.9.22
+|    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    |    |         \--- org.jetbrains:annotations:13.0
+|    |    +--- org.jetbrains.kotlin:kotlin-scripting-jvm:1.9.22
+|    |    |    +--- org.jetbrains.kotlin:kotlin-script-runtime:1.9.22
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    |    |    \--- org.jetbrains.kotlin:kotlin-scripting-common:1.9.22 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- org.jetbrains.kotlin:kotlin-sam-with-receiver-compiler-plugin-embeddable:1.9.22
+\--- org.jetbrains.kotlin:kotlin-assignment-compiler-plugin-embeddable:1.9.22
+
+kotlinCompilerPluginClasspathTest - Kotlin compiler plugins for compilation
++--- org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:1.9.22
+|    +--- org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:1.9.22
+|    |    +--- org.jetbrains.kotlin:kotlin-scripting-common:1.9.22
+|    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    |    |         \--- org.jetbrains:annotations:13.0
+|    |    +--- org.jetbrains.kotlin:kotlin-scripting-jvm:1.9.22
+|    |    |    +--- org.jetbrains.kotlin:kotlin-script-runtime:1.9.22
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    |    |    \--- org.jetbrains.kotlin:kotlin-scripting-common:1.9.22 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- org.jetbrains.kotlin:kotlin-sam-with-receiver-compiler-plugin-embeddable:1.9.22
+\--- org.jetbrains.kotlin:kotlin-assignment-compiler-plugin-embeddable:1.9.22
+
+kotlinKlibCommonizerClasspath
+\--- org.jetbrains.kotlin:kotlin-klib-commonizer-embeddable:1.9.22
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+     |    \--- org.jetbrains:annotations:13.0
+     \--- org.jetbrains.kotlin:kotlin-compiler-embeddable:1.9.22
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+          +--- org.jetbrains.kotlin:kotlin-script-runtime:1.9.22
+          +--- org.jetbrains.kotlin:kotlin-reflect:1.6.10
+          +--- org.jetbrains.kotlin:kotlin-daemon-embeddable:1.9.22
+          \--- org.jetbrains.intellij.deps:trove4j:1.0.20200330
+
+kotlinNativeCompilerPluginClasspath
+No dependencies
+
+kotlinScriptDef - Script filename extensions discovery classpath configuration
+No dependencies
+
+kotlinScriptDefExtensions
+No dependencies
+
+mainSourceElements - List of source directories contained in the Main SourceSet. (n)
+No dependencies
+
+runtimeClasspath - Runtime classpath of null/main.
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.20
+|    |    |    +--- org.jetbrains:annotations:13.0
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
+|    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.20
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.20
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+          \--- org.jetbrains.kotlin:kotlin-reflect:1.9.20 (*)
+
+runtimeElements - Runtime elements for the 'main' feature. (n)
+No dependencies
+
+runtimeElements-published (n)
+No dependencies
+
+runtimeOnly - Runtime only dependencies for null/main. (n)
+No dependencies
+
+testAnnotationProcessor - Annotation processors and their dependencies for source set 'test'.
+No dependencies
+
+testApi - API dependencies for null/test (n)
+No dependencies
+
+testApiDependenciesMetadata
+No dependencies
+
+testCompileClasspath - Compile classpath for null/test.
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    +--- org.jetbrains:annotations:13.0
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22 (c)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
++--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.22 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.22
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 -> 1.9.22 (*)
+
+testCompileOnly - Compile only dependencies for null/test. (n)
+No dependencies
+
+testCompileOnlyDependenciesMetadata
+No dependencies
+
+testImplementation - Implementation only dependencies for null/test. (n)
++--- unspecified (n)
+\--- unspecified (n)
+
+testImplementationDependenciesMetadata
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22 (c)
++--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    \--- com.squareup.okio:okio-metadata:2.10.0
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.22
+|    |              \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 -> 1.9.22 (*)
+
+testIntransitiveDependenciesMetadata
+No dependencies
+
+testKotlinScriptDef - Script filename extensions discovery classpath configuration
+No dependencies
+
+testKotlinScriptDefExtensions
+No dependencies
+
+testRuntimeClasspath - Runtime classpath of null/test.
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    +--- org.jetbrains:annotations:13.0
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22 (c)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
++--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.22 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.22
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 -> 1.9.22 (*)
+          \--- org.jetbrains.kotlin:kotlin-reflect:1.9.20 -> 1.9.22 (*)
+
+testRuntimeOnly - Runtime only dependencies for null/test. (n)
+\--- unspecified (n)
+
+(c) - A dependency constraint, not a dependency. The dependency affected by the constraint occurs elsewhere in the tree.
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.
+
+(n) - A dependency or dependency configuration that cannot be resolved.
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 1m 57s
+6 actionable tasks: 6 executed
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.7/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Task :buildSrc:dependencies
+
+------------------------------------------------------------
+Project ':buildSrc'
+------------------------------------------------------------
+
+compileClasspath - Compile classpath for null/main.
++--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22
+|    +--- org.jetbrains:annotations:13.0
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.22 (c)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
++--- org.jetbrains.kotlin:kotlin-reflect:1.9.22
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.22 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.22
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.22 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.22 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 -> 1.9.22 (*)
+
+(c) - A dependency constraint, not a dependency. The dependency affected by the constraint occurs elsewhere in the tree.
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 14s
+6 actionable tasks: 2 executed, 4 up-to-date
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.7/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:checkKotlinGradlePluginConfigurationErrors
+> Task :buildSrc:compileKotlin UP-TO-DATE
+> Task :buildSrc:compileJava NO-SOURCE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+
+> Task :buildSrc:dependencies
+
+------------------------------------------------------------
+Project ':buildSrc'
+------------------------------------------------------------
+
+runtimeClasspath - Runtime classpath of null/main.
++--- com.squareup.moshi:moshi:1.15.0
+|    +--- com.squareup.okio:okio:2.10.0
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.4.20 -> 1.9.20
+|    |    |    +--- org.jetbrains:annotations:13.0
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.9.20 (c)
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0 -> 1.8.21 (c)
+|    |    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.0 -> 1.8.21 (c)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.20 -> 1.9.20
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21
+|         +--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.21
+|              \--- org.jetbrains.kotlin:kotlin-stdlib:1.8.21 -> 1.9.20 (*)
++--- com.squareup.moshi:moshi-kotlin:1.15.0
+|    +--- com.squareup.moshi:moshi:1.15.0 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.8.21 -> 1.9.20
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+|    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.21 (*)
++--- com.github.javaparser:javaparser-core:3.25.4
+\--- com.squareup:kotlinpoet:1.15.0
+     \--- com.squareup:kotlinpoet-jvm:1.15.0
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.9.20 (*)
+          \--- org.jetbrains.kotlin:kotlin-reflect:1.9.20 (*)
+
+(c) - A dependency constraint, not a dependency. The dependency affected by the constraint occurs elsewhere in the tree.
+(*) - Indicates repeated occurrences of a transitive dependency subtree. Gradle expands transitive dependency subtrees only once per project; repeat occurrences only display the root of the subtree, followed by this annotation.
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 12s
+6 actionable tasks: 2 executed, 4 up-to-date
+[0;34m[2026-05-02 15:16:01][0m Copying buildSrc dependencies to segment directory...
+[0;32m[2026-05-02 15:16:02] ✓[0m Copied caches directory
+[0;32m[2026-05-02 15:16:02] ✓[0m Copied wrapper directory
+[0;32m[2026-05-02 15:16:02] ✓[0m BuildSrc segment generated at: /root/temp/Telegram/offline-repo-buildsrc
+789M	/root/temp/Telegram/offline-repo-buildsrc
+[0;34m[2026-05-02 15:16:02][0m 
+[0;34m[2026-05-02 15:16:02][0m ==========================================
+[0;34m[2026-05-02 15:16:02][0m Generation Complete
+[0;34m[2026-05-02 15:16:02][0m ==========================================
+[0;34m[2026-05-02 15:16:02][0m Generated segments:
+[0;34m[2026-05-02 15:16:02][0m   - /root/temp/Telegram/offline-repo-buildsrc (789M)
+[0;34m[2026-05-02 15:16:02][0m 
+[0;34m[2026-05-02 15:16:02][0m Next steps:
+[0;34m[2026-05-02 15:16:02][0m 1. Compress each segment: tar -czf offline-repo-<segment>.tar.gz offline-repo-<segment>/
+[0;34m[2026-05-02 15:16:02][0m 2. Transfer to offline machine
+[0;34m[2026-05-02 15:16:02][0m 3. Extract all segments: tar -xzf offline-repo-<segment>.tar.gz
+[0;34m[2026-05-02 15:16:02][0m 4. Merge Gradle homes: GRADLE_USER_HOME=/path/to/merged/gradle
+[0;34m[2026-05-02 15:16:02][0m    - Copy all caches/* from each segment to merged location
+[0;34m[2026-05-02 15:16:02][0m    - Copy wrapper/* from any segment to merged location
+[0;34m[2026-05-02 15:16:02][0m 
+[0;34m[2026-05-02 15:16:02][0m Log file: /root/temp/Telegram/offline-repo-generation.log
+[0;32m[2026-05-02 15:16:02] ✓[0m All done!
