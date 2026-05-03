@@ -10,8 +10,6 @@ TERMUX_MIRROR="https://packages.termux.dev/apt/termux-main"
 GPG_EMAIL="termux-repo@localhost"
 GPG_PASS="termux123"
 
-# List of packages to include (wget, tar, and their common dependencies for aarch64)
-# Note: Dependency chains in Termux can update. This covers the standard required libraries.
 PACKAGES=(
     "wget"
     "tar"
@@ -34,7 +32,7 @@ log() {
 
 log "Installing required host packages on Ubuntu 22.04..."
 sudo apt-get update -y
-sudo apt-get install -y curl apt-utils dpkg-dev gnupg
+sudo apt-get install -y curl apt-utils dpkg-dev gnupg xz-utils
 
 log "Setting up repository directory structure..."
 POOL_DIR="$REPO_DIR/pool/$COMP"
@@ -44,12 +42,14 @@ mkdir -p "$POOL_DIR"
 mkdir -p "$DISTS_DIR"
 
 log "Downloading official Termux Packages list to resolve package paths..."
-curl -sL "$TERMUX_MIRROR/dists/stable/main/binary-$ARCH/Packages" -o /tmp/termux_Packages
+# Fetch Packages.xz which is guaranteed to be there, and decompress it
+curl -sL "$TERMUX_MIRROR/dists/stable/main/binary-$ARCH/Packages.xz" -o /tmp/termux_Packages.xz
+xz -d -c /tmp/termux_Packages.xz > /tmp/termux_Packages
 
 log "Downloading packages and dependencies..."
 for pkg in "${PACKAGES[@]}"; do
-    # Extract the file path for the package from the Packages file
-    PKG_PATH=$(awk -v pkg="Package: $pkg\$" '$0 == pkg {f=1} f && /^Filename:/ {print $2; exit}' /tmp/termux_Packages)
+    # Robustly find the package block and extract the Filename path (handling potential \r line endings)
+    PKG_PATH=$(grep -a -A 15 "^Package: ${pkg}\$" /tmp/termux_Packages | grep -a "^Filename:" | head -n 1 | awk '{print $2}' | tr -d '\r')
     
     if [ -z "$PKG_PATH" ]; then
         echo "Warning: Path for $pkg not found. It might be integrated into another package or renamed."
@@ -120,8 +120,3 @@ gpg --armor --export "$GPG_EMAIL" > "$REPO_DIR/termux-repo.pub"
 
 log "Repository build complete!"
 log "To serve it locally, run: python3 -m http.server 8080 --directory $REPO_DIR"
-log "In Termux, add the repository and key using:"
-log "  curl -O http://<YOUR_UBUNTU_IP>:8080/termux-repo.pub"
-log "  apt-key add termux-repo.pub"
-log "  echo \"deb [trusted=yes] http://<YOUR_UBUNTU_IP>:8080 stable main\" > \$PREFIX/etc/apt/sources.list.d/custom.list"
-log "  apt update"
