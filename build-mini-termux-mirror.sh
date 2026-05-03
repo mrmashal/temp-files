@@ -2,364 +2,126 @@
 set -e
 
 # Configuration
-REPO_DIR="$HOME/termux-repo"
-PACKAGES_DIR="$REPO_DIR/dists/stable/main/binary-aarch64"
+REPO_DIR="$(pwd)/termux-custom-repo"
 ARCH="aarch64"
+DIST="stable"
+COMP="main"
+TERMUX_MIRROR="https://packages.termux.dev/apt/termux-main"
+GPG_EMAIL="termux-repo@localhost"
+GPG_PASS="termux123"
 
-# Logging function
-log() {
-    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1"
-}
-
-error_exit() {
-    log "ERROR: $1"
-    exit 1
-}
-
-log "Starting Termux repository build for version 0.119.0-beta.3"
-
-# Create directory structure
-log "Creating directory structure..."
-mkdir -p "$PACKAGES_DIR"
-mkdir -p "$REPO_DIR/dists/stable/main"
-
-# Install required tools
-log "Installing required tools..."
-sudo apt-get update -qq || error_exit "Failed to update apt"
-sudo apt-get install -y wget curl gnupg dpkg-dev apt-utils xz-utils gzip || error_exit "Failed to install required tools"
-
-# Download Termux Packages index
-log "Fetching Termux package index..."
-TEMP_DIR=$(mktemp -d)
-cd "$TEMP_DIR"
-
-INDEX_DOWNLOADED=false
-PACKAGES_FILE="$TEMP_DIR/Packages"
-
-# Try different URLs and compression formats
-declare -a INDEX_URLS=(
-    "https://packages-cf.termux.dev/apt/termux-main-21/dists/stable/main/binary-$ARCH/Packages.xz"
-    "https://packages-cf.termux.dev/apt/termux-main-21/dists/stable/main/binary-$ARCH/Packages.gz"
-    "https://packages-cf.termux.dev/apt/termux-main-21/dists/stable/main/binary-$ARCH/Packages"
-    "https://packages.termux.dev/apt/termux-main-21/dists/stable/main/binary-$ARCH/Packages.xz"
-    "https://packages.termux.dev/apt/termux-main-21/dists/stable/main/binary-$ARCH/Packages.gz"
+# List of packages to include (wget, tar, and their common dependencies for aarch64)
+# Note: Dependency chains in Termux can update. This covers the standard required libraries.
+PACKAGES=(
+    "wget"
+    "tar"
+    "openssl"
+    "libidn2"
+    "libunistring"
+    "pcre2"
+    "zlib"
+    "ca-certificates"
+    "libiconv"
+    "xz-utils"
+    "liblzma"
+    "libandroid-support"
+    "resolv-conf"
 )
 
-for url in "${INDEX_URLS[@]}"; do
-    log "Trying $url..."
-    filename=$(basename "$url")
+log() {
+    echo -e "\e[1;32m[*]\e[0m $1"
+}
+
+log "Installing required host packages on Ubuntu 22.04..."
+sudo apt-get update -y
+sudo apt-get install -y curl apt-utils dpkg-dev gnupg
+
+log "Setting up repository directory structure..."
+POOL_DIR="$REPO_DIR/pool/$COMP"
+DISTS_DIR="$REPO_DIR/dists/$DIST/$COMP/binary-$ARCH"
+
+mkdir -p "$POOL_DIR"
+mkdir -p "$DISTS_DIR"
+
+log "Downloading official Termux Packages list to resolve package paths..."
+curl -sL "$TERMUX_MIRROR/dists/stable/main/binary-$ARCH/Packages" -o /tmp/termux_Packages
+
+log "Downloading packages and dependencies..."
+for pkg in "${PACKAGES[@]}"; do
+    # Extract the file path for the package from the Packages file
+    PKG_PATH=$(awk -v pkg="Package: $pkg\$" '$0 == pkg {f=1} f && /^Filename:/ {print $2; exit}' /tmp/termux_Packages)
     
-    if wget -q --timeout=10 --tries=2 "$url" -O "$filename" 2>/dev/null; then
-        # Decompress if needed
-        if [[ "$filename" == *.xz ]]; then
-            if xz -d "$filename" 2>/dev/null; then
-                # After decompression, the file is named without .xz extension
-                mv "Packages" "$PACKAGES_FILE" 2>/dev/null || true
-                if [ -f "$PACKAGES_FILE" ]; then
-                    INDEX_DOWNLOADED=true
-                    log "✓ Successfully downloaded and decompressed index"
-                    break
-                fi
-            fi
-        elif [[ "$filename" == *.gz ]]; then
-            if gunzip "$filename" 2>/dev/null; then
-                mv "Packages" "$PACKAGES_FILE" 2>/dev/null || true
-                if [ -f "$PACKAGES_FILE" ]; then
-                    INDEX_DOWNLOADED=true
-                    log "✓ Successfully downloaded and decompressed index"
-                    break
-                fi
-            fi
-        else
-            mv "$filename" "$PACKAGES_FILE" 2>/dev/null || true
-            if [ -f "$PACKAGES_FILE" ]; then
-                INDEX_DOWNLOADED=true
-                log "✓ Successfully downloaded index"
-                break
-            fi
-        fi
+    if [ -z "$PKG_PATH" ]; then
+        echo "Warning: Path for $pkg not found. It might be integrated into another package or renamed."
+        continue
+    fi
+
+    FILE_NAME=$(basename "$PKG_PATH")
+    if [ ! -f "$POOL_DIR/$FILE_NAME" ]; then
+        log " -> Downloading $pkg..."
+        curl -sL "$TERMUX_MIRROR/$PKG_PATH" -o "$POOL_DIR/$FILE_NAME"
+    else
+        log " -> $pkg already downloaded."
     fi
 done
 
-if [ "$INDEX_DOWNLOADED" = false ]; then
-    log "WARNING: Could not download Packages index from any source"
-    log "Attempting direct package download method..."
-    
-    cd "$PACKAGES_DIR"
-    
-    # Try to download packages directly using multiple URL patterns
-    declare -a BASE_URLS=(
-        "https://packages-cf.termux.dev/apt/termux-main-21/pool/main"
-        "https://packages.termux.dev/apt/termux-main-21"
-        "https://packages-cf.termux.dev/apt/termux-main/pool/main"
-    )
-    
-    # Core packages with known recent versions
-    declare -A PACKAGE_PATTERNS=(
-        ["wget"]="wget_1.*_aarch64.deb"
-        ["tar"]="tar_1.*_aarch64.deb"
-        ["libandroid-support"]="libandroid-support_*_aarch64.deb"
-        ["libc++"]="libc++_*_aarch64.deb"
-        ["openssl"]="openssl_*_aarch64.deb"
-        ["ca-certificates"]="ca-certificates_*_all.deb"
-        ["zlib"]="zlib_*_aarch64.deb"
-        ["libuuid"]="libuuid_*_aarch64.deb"
-        ["pcre2"]="pcre2_*_aarch64.deb"
-        ["libidn2"]="libidn2_*_aarch64.deb"
-        ["libunistring"]="libunistring_*_aarch64.deb"
-        ["libnettle"]="libnettle_*_aarch64.deb"
-        ["libgmp"]="libgmp_*_aarch64.deb"
-        ["libgnutls"]="libgnutls_*_aarch64.deb"
-        ["libcrypt"]="libcrypt_*_aarch64.deb"
-    )
-    
-    DOWNLOADED=0
-    FAILED=0
-    
-    for pkg in "${!PACKAGE_PATTERNS[@]}"; do
-        log "Attempting to download $pkg..."
-        pkg_downloaded=false
-        
-        # Try direct pool structure
-        first_letter="${pkg:0:1}"
-        
-        for base_url in "${BASE_URLS[@]}"; do
-            # Try different URL patterns
-            declare -a TRY_URLS=(
-                "$base_url/$first_letter/$pkg/"
-                "$base_url/pool/main/$first_letter/$pkg/"
-            )
-            
-            for try_url in "${TRY_URLS[@]}"; do
-                # Get directory listing
-                listing=$(wget -q -O- "$try_url" 2>/dev/null || echo "")
-                
-                if [ -n "$listing" ]; then
-                    # Find .deb files matching the pattern
-                    deb_file=$(echo "$listing" | grep -oP "${pkg}_[^\"]+_(aarch64|all)\.deb" | head -1)
-                    
-                    if [ -n "$deb_file" ]; then
-                        full_url="$try_url$deb_file"
-                        if wget -q --timeout=15 "$full_url" -O "$deb_file" 2>/dev/null; then
-                            # Verify it's a valid .deb file
-                            if file "$deb_file" 2>/dev/null | grep -q "Debian binary package"; then
-                                log "✓ Downloaded $pkg ($deb_file)"
-                                ((DOWNLOADED++))
-                                pkg_downloaded=true
-                                break 2
-                            else
-                                log "✗ Invalid .deb file, removing..."
-                                rm -f "$deb_file"
-                            fi
-                        fi
-                    fi
-                fi
-            done
-        done
-        
-        if [ "$pkg_downloaded" = false ]; then
-            log "✗ Failed to download $pkg from any source"
-            ((FAILED++))
-        fi
-    done
-    
-    rm -rf "$TEMP_DIR"
-    
-    log "Summary: Downloaded $DOWNLOADED packages, Failed $FAILED packages"
-    
-    if [ $DOWNLOADED -eq 0 ]; then
-        error_exit "No packages were downloaded. Cannot create repository."
-    fi
-    
-else
-    # Index downloaded successfully, parse and download packages
-    log "Parsing package index..."
-    
-    # Verify the Packages file exists and is readable
-    if [ ! -f "$PACKAGES_FILE" ] || [ ! -r "$PACKAGES_FILE" ]; then
-        error_exit "Packages file not found or not readable at $PACKAGES_FILE"
-    fi
-    
-    log "Packages file size: $(stat -c%s "$PACKAGES_FILE") bytes"
-    
-    # Function to extract package info
-    get_package_info() {
-        local pkg_name="$1"
-        awk -v pkg="$pkg_name" '
-            /^Package:/ { if ($2 == pkg) found=1; else found=0 }
-            found && /^Filename:/ { print $2; exit }
-        ' "$PACKAGES_FILE"
-    }
-    
-    # List of packages to download
-    declare -a PACKAGES=(
-        "wget"
-        "tar"
-        "libandroid-support"
-        "libc++"
-        "openssl"
-        "ca-certificates"
-        "zlib"
-        "libuuid"
-        "pcre2"
-        "libidn2"
-        "libunistring"
-        "libnettle"
-        "libgmp"
-        "libgnutls"
-        "libcrypt"
-    )
-    
-    cd "$PACKAGES_DIR"
-    DOWNLOADED=0
-    FAILED=0
-    
-    for pkg in "${PACKAGES[@]}"; do
-        log "Processing $pkg..."
-        FILENAME=$(get_package_info "$pkg")
-        
-        if [ -n "$FILENAME" ]; then
-            # Try multiple base URLs
-            pkg_downloaded=false
-            
-            for base in "https://packages-cf.termux.dev/apt/termux-main-21" "https://packages.termux.dev/apt/termux-main-21"; do
-                FULL_URL="$base/$FILENAME"
-                deb_file=$(basename "$FILENAME")
-                
-                if wget -q --timeout=15 "$FULL_URL" -O "$deb_file" 2>/dev/null; then
-                    # Verify it's a valid .deb
-                    if file "$deb_file" 2>/dev/null | grep -q "Debian binary package"; then
-                        log "✓ Downloaded $pkg"
-                        ((DOWNLOADED++))
-                        pkg_downloaded=true
-                        break
-                    else
-                        log "✗ Invalid .deb file, removing..."
-                        rm -f "$deb_file"
-                    fi
-                fi
-            done
-            
-            if [ "$pkg_downloaded" = false ]; then
-                log "✗ Failed to download $pkg"
-                ((FAILED++))
-            fi
-        else
-            log "✗ Package $pkg not found in index"
-            ((FAILED++))
-        fi
-    done
-    
-    rm -rf "$TEMP_DIR"
-    
-    log "Summary: Downloaded $DOWNLOADED packages, Failed $FAILED packages"
-    
-    if [ $DOWNLOADED -eq 0 ]; then
-        error_exit "No packages were downloaded. Cannot create repository."
-    fi
-fi
+log "Creating apt-ftparchive configuration..."
+cat <<EOF > /tmp/apt-ftparchive.conf
+APT::FTPArchive::Release {
+  Origin "Custom Termux Repo";
+  Label "Custom Termux Repo";
+  Suite "$DIST";
+  Codename "$DIST";
+  Architectures "$ARCH";
+  Components "$COMP";
+  Description "Minimal repository containing wget and tar";
+};
+EOF
 
-# Generate Packages file
-log "Generating repository metadata..."
+log "Generating Packages and Packages.gz..."
 cd "$REPO_DIR"
+apt-ftparchive packages "pool/$COMP" > "$DISTS_DIR/Packages"
+gzip -k -f "$DISTS_DIR/Packages"
 
-if ! dpkg-scanpackages --arch "$ARCH" "dists/stable/main/binary-$ARCH" /dev/null > "dists/stable/main/binary-$ARCH/Packages" 2>/dev/null; then
-    error_exit "Failed to generate Packages file"
-fi
+log "Generating Release file..."
+cd "$REPO_DIR/dists/$DIST"
+apt-ftparchive -c /tmp/apt-ftparchive.conf release . > Release
 
-gzip -9c "dists/stable/main/binary-$ARCH/Packages" > "dists/stable/main/binary-$ARCH/Packages.gz"
-xz -9c "dists/stable/main/binary-$ARCH/Packages" > "dists/stable/main/binary-$ARCH/Packages.xz"
+log "Setting up GPG for repository signing..."
+export GNUPGHOME="/tmp/termux-repo-gnupg"
+rm -rf "$GNUPGHOME"
+mkdir -p "$GNUPGHOME"
+chmod 700 "$GNUPGHOME"
 
-# Create Release file
-log "Creating Release file..."
-cat > "$REPO_DIR/dists/stable/Release" <<EOF
-Origin: Termux
-Label: Termux
-Suite: stable
-Codename: stable
-Version: 0.119.0-beta.3
-Architectures: all aarch64 arm i686
-Components: main
-Description: Minimal Termux repository with wget and tar
-Date: $(date -Ru)
-EOF
-
-cd "$REPO_DIR/dists/stable"
-echo "MD5Sum:" >> Release
-find main -type f | while read file; do
-    echo " $(md5sum "$file" | cut -d' ' -f1) $(stat -c%s "$file") $file" >> Release
-done
-echo "SHA256:" >> Release
-find main -type f | while read file; do
-    echo " $(sha256sum "$file" | cut -d' ' -f1) $(stat -c%s "$file") $file" >> Release
-done
-
-# GPG setup
-log "Setting up GPG key..."
-GPG_KEY_ID="termux-repo@localhost"
-
-if ! gpg --list-keys "$GPG_KEY_ID" &>/dev/null; then
-    log "Generating new GPG key..."
-    cat > /tmp/gpg-batch <<EOF
-%no-protection
+cat <<EOF > /tmp/gpg-batch
+%echo Generating basic GPG key for the repository
 Key-Type: RSA
-Key-Length: 4096
-Name-Real: Termux Repository
-Name-Email: termux-repo@localhost
+Key-Length: 2048
+Subkey-Type: RSA
+Subkey-Length: 2048
+Name-Real: Custom Termux Repo
+Name-Email: $GPG_EMAIL
 Expire-Date: 0
-EOF
-    gpg --batch --gen-key /tmp/gpg-batch
-    rm /tmp/gpg-batch
-fi
-
-log "Signing Release file..."
-gpg --default-key "$GPG_KEY_ID" -abs -o Release.gpg Release
-gpg --default-key "$GPG_KEY_ID" --clearsign -o InRelease Release
-gpg --armor --export "$GPG_KEY_ID" > "$REPO_DIR/public.key"
-
-# Create README
-FINAL_COUNT=$(ls -1 "$PACKAGES_DIR"/*.deb 2>/dev/null | wc -l)
-
-cat > "$REPO_DIR/README.md" <<EOF
-# Minimal Termux Repository
-
-This repository contains wget and tar packages with dependencies for Termux 0.119.0-beta.3.
-
-## Setup Instructions
-
-1. Copy the repository to your device
-2. Add the repository to Termux:
-
-\`\`\`bash
-# Import GPG key
-cat public.key | apt-key add -
-
-# Add repository
-echo "deb [trusted=yes] file:///path/to/termux-repo stable main" > \$PREFIX/etc/apt/sources.list.d/local-repo.list
-
-# Update and install
-apt update
-apt install wget tar
-\`\`\`
-
-## Repository Contents
-
-- Total packages: $FINAL_COUNT
-- Architecture: $ARCH
-- Generated: $(date)
-
-## Package List
-
-$(ls -1 "$PACKAGES_DIR"/*.deb 2>/dev/null | xargs -n1 basename | sed 's/^/- /')
-
+Passphrase: $GPG_PASS
+%commit
+%echo done
 EOF
 
-log "=========================================="
+gpg --batch --generate-key /tmp/gpg-batch
+
+log "Signing Release files..."
+# Create Release.gpg (detached signature)
+gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASS" --detach-sign --armor --output Release.gpg Release
+# Create InRelease (clearsigned)
+gpg --batch --yes --pinentry-mode loopback --passphrase "$GPG_PASS" --clearsign --output InRelease Release
+
+log "Exporting Public Key for Termux clients..."
+gpg --armor --export "$GPG_EMAIL" > "$REPO_DIR/termux-repo.pub"
+
 log "Repository build complete!"
-log "=========================================="
-log "Repository location: $REPO_DIR"
-log "Package count: $FINAL_COUNT"
-log "Public key: $REPO_DIR/public.key"
-log "=========================================="
-
-exit 0
+log "To serve it locally, run: python3 -m http.server 8080 --directory $REPO_DIR"
+log "In Termux, add the repository and key using:"
+log "  curl -O http://<YOUR_UBUNTU_IP>:8080/termux-repo.pub"
+log "  apt-key add termux-repo.pub"
+log "  echo \"deb [trusted=yes] http://<YOUR_UBUNTU_IP>:8080 stable main\" > \$PREFIX/etc/apt/sources.list.d/custom.list"
+log "  apt update"
