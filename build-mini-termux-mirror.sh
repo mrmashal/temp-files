@@ -34,7 +34,7 @@ TEMP_DIR=$(mktemp -d)
 cd "$TEMP_DIR"
 
 INDEX_DOWNLOADED=false
-PACKAGES_FILE=""
+PACKAGES_FILE="$TEMP_DIR/Packages"
 
 # Try different URLs and compression formats
 declare -a INDEX_URLS=(
@@ -53,23 +53,30 @@ for url in "${INDEX_URLS[@]}"; do
         # Decompress if needed
         if [[ "$filename" == *.xz ]]; then
             if xz -d "$filename" 2>/dev/null; then
-                PACKAGES_FILE="Packages"
-                INDEX_DOWNLOADED=true
-                log "✓ Successfully downloaded and decompressed index"
-                break
+                # After decompression, the file is named without .xz extension
+                mv "Packages" "$PACKAGES_FILE" 2>/dev/null || true
+                if [ -f "$PACKAGES_FILE" ]; then
+                    INDEX_DOWNLOADED=true
+                    log "✓ Successfully downloaded and decompressed index"
+                    break
+                fi
             fi
         elif [[ "$filename" == *.gz ]]; then
             if gunzip "$filename" 2>/dev/null; then
-                PACKAGES_FILE="Packages"
-                INDEX_DOWNLOADED=true
-                log "✓ Successfully downloaded and decompressed index"
-                break
+                mv "Packages" "$PACKAGES_FILE" 2>/dev/null || true
+                if [ -f "$PACKAGES_FILE" ]; then
+                    INDEX_DOWNLOADED=true
+                    log "✓ Successfully downloaded and decompressed index"
+                    break
+                fi
             fi
         else
-            PACKAGES_FILE="$filename"
-            INDEX_DOWNLOADED=true
-            log "✓ Successfully downloaded index"
-            break
+            mv "$filename" "$PACKAGES_FILE" 2>/dev/null || true
+            if [ -f "$PACKAGES_FILE" ]; then
+                INDEX_DOWNLOADED=true
+                log "✓ Successfully downloaded index"
+                break
+            fi
         fi
     fi
 done
@@ -83,69 +90,71 @@ if [ "$INDEX_DOWNLOADED" = false ]; then
     # Try to download packages directly using multiple URL patterns
     declare -a BASE_URLS=(
         "https://packages-cf.termux.dev/apt/termux-main-21/pool/main"
-        "https://packages.termux.dev/apt/termux-main-21/pool/main"
+        "https://packages.termux.dev/apt/termux-main-21"
         "https://packages-cf.termux.dev/apt/termux-main/pool/main"
     )
     
-    # Core packages needed
-    declare -a CORE_PACKAGES=(
-        "wget"
-        "tar"
-        "libandroid-support"
-        "libc++"
-        "openssl"
-        "ca-certificates"
-        "zlib"
-        "libuuid"
-        "pcre2"
-        "libidn2"
-        "libunistring"
-        "libnettle"
-        "libgmp"
-        "libgnutls"
-        "libcrypt"
+    # Core packages with known recent versions
+    declare -A PACKAGE_PATTERNS=(
+        ["wget"]="wget_1.*_aarch64.deb"
+        ["tar"]="tar_1.*_aarch64.deb"
+        ["libandroid-support"]="libandroid-support_*_aarch64.deb"
+        ["libc++"]="libc++_*_aarch64.deb"
+        ["openssl"]="openssl_*_aarch64.deb"
+        ["ca-certificates"]="ca-certificates_*_all.deb"
+        ["zlib"]="zlib_*_aarch64.deb"
+        ["libuuid"]="libuuid_*_aarch64.deb"
+        ["pcre2"]="pcre2_*_aarch64.deb"
+        ["libidn2"]="libidn2_*_aarch64.deb"
+        ["libunistring"]="libunistring_*_aarch64.deb"
+        ["libnettle"]="libnettle_*_aarch64.deb"
+        ["libgmp"]="libgmp_*_aarch64.deb"
+        ["libgnutls"]="libgnutls_*_aarch64.deb"
+        ["libcrypt"]="libcrypt_*_aarch64.deb"
     )
     
     DOWNLOADED=0
     FAILED=0
     
-    for pkg in "${CORE_PACKAGES[@]}"; do
+    for pkg in "${!PACKAGE_PATTERNS[@]}"; do
         log "Attempting to download $pkg..."
         pkg_downloaded=false
         
+        # Try direct pool structure
+        first_letter="${pkg:0:1}"
+        
         for base_url in "${BASE_URLS[@]}"; do
-            # Try pool structure: pool/main/p/package/
-            first_letter="${pkg:0:1}"
+            # Try different URL patterns
+            declare -a TRY_URLS=(
+                "$base_url/$first_letter/$pkg/"
+                "$base_url/pool/main/$first_letter/$pkg/"
+            )
             
-            # Get list of available versions
-            pkg_url="$base_url/$first_letter/$pkg/"
-            
-            # Try to find any .deb file for this package
-            if wget -q --spider "$pkg_url" 2>/dev/null; then
-                # Try to download the directory listing and find .deb files
-                listing=$(wget -q -O- "$pkg_url" 2>/dev/null || echo "")
+            for try_url in "${TRY_URLS[@]}"; do
+                # Get directory listing
+                listing=$(wget -q -O- "$try_url" 2>/dev/null || echo "")
                 
                 if [ -n "$listing" ]; then
-                    # Extract .deb filenames from HTML
-                    deb_file=$(echo "$listing" | grep -oP "${pkg}_[^\"]+_($ARCH|all)\.deb" | head -1)
+                    # Find .deb files matching the pattern
+                    deb_file=$(echo "$listing" | grep -oP "${pkg}_[^\"]+_(aarch64|all)\.deb" | head -1)
                     
                     if [ -n "$deb_file" ]; then
-                        full_url="$pkg_url$deb_file"
-                        if wget -q --timeout=15 "$full_url" 2>/dev/null; then
+                        full_url="$try_url$deb_file"
+                        if wget -q --timeout=15 "$full_url" -O "$deb_file" 2>/dev/null; then
                             # Verify it's a valid .deb file
-                            if file "$deb_file" | grep -q "Debian binary package"; then
+                            if file "$deb_file" 2>/dev/null | grep -q "Debian binary package"; then
                                 log "✓ Downloaded $pkg ($deb_file)"
                                 ((DOWNLOADED++))
                                 pkg_downloaded=true
-                                break
+                                break 2
                             else
-                                log "✗ Downloaded file is not a valid .deb, removing..."
+                                log "✗ Invalid .deb file, removing..."
                                 rm -f "$deb_file"
                             fi
                         fi
                     fi
                 fi
-            fi
+            done
         done
         
         if [ "$pkg_downloaded" = false ]; then
@@ -165,6 +174,13 @@ if [ "$INDEX_DOWNLOADED" = false ]; then
 else
     # Index downloaded successfully, parse and download packages
     log "Parsing package index..."
+    
+    # Verify the Packages file exists and is readable
+    if [ ! -f "$PACKAGES_FILE" ] || [ ! -r "$PACKAGES_FILE" ]; then
+        error_exit "Packages file not found or not readable at $PACKAGES_FILE"
+    fi
+    
+    log "Packages file size: $(stat -c%s "$PACKAGES_FILE") bytes"
     
     # Function to extract package info
     get_package_info() {
@@ -208,12 +224,11 @@ else
             
             for base in "https://packages-cf.termux.dev/apt/termux-main-21" "https://packages.termux.dev/apt/termux-main-21"; do
                 FULL_URL="$base/$FILENAME"
+                deb_file=$(basename "$FILENAME")
                 
-                if wget -q --timeout=15 --show-progress "$FULL_URL" 2>/dev/null; then
-                    deb_file=$(basename "$FILENAME")
-                    
+                if wget -q --timeout=15 "$FULL_URL" -O "$deb_file" 2>/dev/null; then
                     # Verify it's a valid .deb
-                    if file "$deb_file" | grep -q "Debian binary package"; then
+                    if file "$deb_file" 2>/dev/null | grep -q "Debian binary package"; then
                         log "✓ Downloaded $pkg"
                         ((DOWNLOADED++))
                         pkg_downloaded=true
