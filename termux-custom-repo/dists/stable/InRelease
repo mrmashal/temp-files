@@ -1,0 +1,38 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+Architectures: aarch64
+Codename: stable
+Components: main
+Date: Sun, 03 May 2026 14:34:43 +0000
+Description: Minimal repository containing wget and tar
+Label: Custom Termux Repo
+Origin: Custom Termux Repo
+Suite: stable
+MD5Sum:
+ df7fa4812e0fc05a244bfbcd01d72ae4              218 Release
+ d41d8cd98f00b204e9800998ecf8427e                0 main/binary-aarch64/Packages
+ 303a409caf07f84ba32269abdbb06478               29 main/binary-aarch64/Packages.gz
+SHA1:
+ 5af09a7ac299a594e8ae9d06659144218c7fc0a8              218 Release
+ da39a3ee5e6b4b0d3255bfef95601890afd80709                0 main/binary-aarch64/Packages
+ 793160073fa02597ea52643f02a3a4510e3adc95               29 main/binary-aarch64/Packages.gz
+SHA256:
+ 77b3f9568b956ca282e1d806bd50ed44ebb1d8d4b289dd82d6d476a7d21b557a              218 Release
+ e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855                0 main/binary-aarch64/Packages
+ 9486b730d90d96b6d1ae72d9017eda13ddb90deebb49751ca3528abb4a9049fd               29 main/binary-aarch64/Packages.gz
+SHA512:
+ ab06843f3c9434243003ddf84c33274955cd8ae66dc89dc98e0d7cf6e2bc4f130534699ab673306c0e2bf6d065683af2c3135b74b7ac29610d1e636d4441b762              218 Release
+ cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e                0 main/binary-aarch64/Packages
+ 0d75d58db67a45e0b5ca5df2ce7ecf5d131248ea202d50acfd1858e0958e3534ce18541c52f5442ebfc71157f117b0b3714c1d93a994b4fee105b924fb232add               29 main/binary-aarch64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEE7E4jPMHk280gMMXj4vUvyhc85DAFAmn3XQcACgkQ4vUvyhc8
+5DD+rAgAgwpTSptMKH1BTtuWMpSF0VtfiL5Q6GBP4MnpX0ROvzES7VY+MuZ02xBN
+FXL8yMLu+CCz9cmL2MfctrLGnIlwKy6VRuXq30U8HndK2pw2foVawGs8tbg4XBmc
+vL/RFgFzClAZos4tz4ARCUOOGXqO0RV8JfzmGV60bpK3/Bn7TH0NLhRTMZuna47t
+b2/MMrX+C6w92YyRJr4oXzDnjd6YnNBzuzSNV0TVWEQ3Q6FImiHJ++mVwBpGfWFt
+FyLdIGgLn3ZcyNp9fhZNUctq4jShjAMl+zywGKet0McthTUvroE9saQV14uRjT5v
+s+a7HMiyQAnKVUMPo5mAgJweg1MfBQ==
+=UQVe
+-----END PGP SIGNATURE-----
