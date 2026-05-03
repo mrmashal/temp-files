@@ -17,20 +17,26 @@ log "Starting Termux repository build for version 0.119.0-beta.3"
 # Create directory structure
 log "Creating directory structure..."
 mkdir -p "$PACKAGES_DIR"
-mkdir -p "$REPO_DIR/dists/stable/main/binary-all"
-mkdir -p "$REPO_DIR/dists/stable/main/binary-arm"
-mkdir -p "$REPO_DIR/dists/stable/main/binary-i686"
 
 # Install required tools
 log "Installing required tools..."
-sudo apt-get update
+sudo apt-get update -qq
 sudo apt-get install -y wget curl gnupg dpkg-dev apt-utils
 
-# Download packages and dependencies
-log "Downloading wget, tar and their dependencies..."
-cd "$PACKAGES_DIR"
+# Download Termux Packages index to find exact package names
+log "Fetching Termux package index..."
+TEMP_DIR=$(mktemp -d)
+cd "$TEMP_DIR"
+wget -q "$TERMUX_PACKAGES_REPO/dists/stable/main/binary-$ARCH/Packages.xz"
+xz -d Packages.xz
 
-# List of packages to download (wget, tar and common dependencies)
+# Function to extract package filename from Packages index
+get_package_filename() {
+    local pkg_name="$1"
+    grep -A 20 "^Package: $pkg_name$" Packages | grep "^Filename:" | head -1 | awk '{print $2}'
+}
+
+# List of packages to download
 PACKAGES=(
     "wget"
     "tar"
@@ -53,11 +59,34 @@ PACKAGES=(
 )
 
 # Download each package
+log "Downloading packages..."
+cd "$PACKAGES_DIR"
+DOWNLOADED=0
+FAILED=0
+
 for pkg in "${PACKAGES[@]}"; do
-    log "Downloading $pkg..."
-    # Try to download the latest version
-    wget -q --show-progress -r -l1 -np -nd -A "${pkg}_*.deb" "$TERMUX_PACKAGES_REPO/" || log "Warning: Could not download $pkg"
+    log "Processing $pkg..."
+    FILENAME=$(get_package_filename "$pkg")
+    
+    if [ -n "$FILENAME" ]; then
+        FULL_URL="$TERMUX_PACKAGES_REPO/$FILENAME"
+        if wget -q --show-progress "$FULL_URL"; then
+            log "✓ Downloaded $pkg"
+            ((DOWNLOADED++))
+        else
+            log "✗ Failed to download $pkg from $FULL_URL"
+            ((FAILED++))
+        fi
+    else
+        log "✗ Package $pkg not found in index"
+        ((FAILED++))
+    fi
 done
+
+# Cleanup temp directory
+rm -rf "$TEMP_DIR"
+
+log "Downloaded: $DOWNLOADED packages, Failed: $FAILED packages"
 
 # Generate Packages file
 log "Generating Packages file..."
@@ -155,13 +184,14 @@ apt install wget tar
 - tar
 - All required dependencies
 
+Total packages: $DOWNLOADED
+
 Generated: $(date)
 EOF
 
 log "Repository build complete!"
 log "Repository location: $REPO_DIR"
 log "Public key: $REPO_DIR/public.key"
-log ""
 log "Package count: $(ls -1 $PACKAGES_DIR/*.deb 2>/dev/null | wc -l)"
 log ""
 log "To use this repository, copy it to your device and follow the instructions in README.md"
